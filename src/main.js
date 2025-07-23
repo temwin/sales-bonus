@@ -89,11 +89,19 @@ function analyzeSalesData(data, options) {
   // @TODO: Расчет выручки и прибыли для каждого продавца
   data.purchase_records.forEach((record) => {
     const seller = sellerIndex[record.seller_id];
+    if (!seller) {
+        console.warn(`Продавец с ID ${record.seller_id} не найден в списке sellers`);
+        return; // Пропускаем эту запись, если продавец не найден
+      }
     seller.sales_count += 1; // Увеличить количество продаж
     let totalAmount = 0; // Увеличить общую сумму всех продаж
 
     record.items.forEach((item) => {
       const product = productIndex[item.sku];
+      if (!product) {
+        console.warn(`Товар с SKU ${item.sku} не найден в списке products`);
+        return; // Пропускаем, если товар не найден
+      }
       const cost = product.purchase_price * item.quantity;
       const revenue = calculateRevenue(item, product);
       const profit = revenue - cost;
