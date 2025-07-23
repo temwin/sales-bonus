@@ -86,13 +86,11 @@ function analyzeSalesData(data, options) {
   // @TODO: Расчет выручки и прибыли для каждого продавца
   data.purchase_records.forEach((record) => {
     const seller = sellerIndex[record.seller_id];
-    if (!seller) return;
     seller.sales_count += 1; // Увеличить количество продаж
-    let totalAmount = 0; // Увеличить общую сумму всех продаж
+    seller.revenue += record.total_amount; // Увеличить общую сумму всех продаж
 
     record.items.forEach((item) => {
       const product = productIndex[item.sku];
-      if (!product) return;
       const cost = product.purchase_price * item.quantity;
       const revenue = calculateRevenue(item, product);
       const profit = revenue - cost;
@@ -102,14 +100,9 @@ function analyzeSalesData(data, options) {
         seller.products_sold[item.sku] = 0;
       }
       seller.products_sold[item.sku] += item.quantity;
-
-      totalAmount += revenue;
     });
-
-    // @TODO: Сортировка продавцов по прибыли
-    seller.revenue += totalAmount;
   });
-
+  // @TODO: Сортировка продавцов по прибыли
   sellerStats.sort((a, b) => b.profit - a.profit);
 
   // @TODO: Назначение премий на основе ранжирования
